@@ -64,4 +64,5 @@ function [h,g] = variogram2D( X, Z, hmax, nh )
             g(i) = NaN;
         end
     end
+    h = h * 3.2808;
 end
