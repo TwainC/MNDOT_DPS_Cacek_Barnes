@@ -90,7 +90,7 @@ function [means, sds] = extractAndPlotVariogram(csvPath)
     
     V = axis;
     ylim([0,V(4)]);
-    xlabel('separation distance [m]');
+    xlabel('separation distance [ft]');
     ylabel('\gamma(h) [.]');
     title(fileName);
     
