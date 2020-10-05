@@ -100,6 +100,8 @@ function catalogData(srcFolder, dstFile, recursive)
             headerLines = headerLines + 1;
         end
         
+        frewind(sfid);
+        
         dielectric = textscan(sfid, ['%f %*f %*s ', repmat('%*f %*f %*f %s %f %*f %*f %*f %*f %*f %*f ', [1,3]), '%*[^\n] '], 'HeaderLines', headerLines, 'Delimiter',',');
         
         fclose(sfid);
@@ -141,7 +143,6 @@ function catalogData(srcFolder, dstFile, recursive)
             fileList(n).name, direction, lateralOffsetA(1,:), lateralOffsetB(1,:), ...
             lateralOffsetC(1,:), count, minDistance, maxDistance, totalLength, ...
             meanA, meanB, meanC);
-        
         
     end
     
