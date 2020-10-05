@@ -29,7 +29,7 @@
 %   University of Minnesota
 %
 % Version:
-%   29 Sep 2020
+%   4 Oct 2020
 %------------------------------------------------------------------------------
 function catalogData(srcFolder, dstFile, recursive)
     tic;
@@ -74,15 +74,33 @@ function catalogData(srcFolder, dstFile, recursive)
         filePath = fullfile(fileList(n).folder, fileList(n).name);
         sfid = fopen(filePath);
         
-        for i=1:13
+        collectionBool = 0;
+        while collectionBool == 0
             line = fgetl(sfid);
+            if length(line) > 4
+                if line(1:4) == 'Coll'
+                collectionBool = 1;
+                end
+            end
         end
-        
+            
         direction = line(23:32);
         
         frewind(sfid);
         
-        dielectric = textscan(sfid, ['%f %*f %*s ', repmat('%*f %*f %*f %s %f %*f %*f %*f %*f %*f %*f ', [1,3]), '%*[^\n] '], 'HeaderLines', 22, 'Delimiter',',');
+        headerBool = 0;
+        headerLines = 0;
+        while headerBool == 0
+            line = fgetl(sfid);
+            if length(line) > 8
+                if line(1:8) == 'Distance'
+                headerBool = 1;
+                end
+            end
+            headerLines = headerLines + 1;
+        end
+        
+        dielectric = textscan(sfid, ['%f %*f %*s ', repmat('%*f %*f %*f %s %f %*f %*f %*f %*f %*f %*f ', [1,3]), '%*[^\n] '], 'HeaderLines', headerLines, 'Delimiter',',');
         
         fclose(sfid);
         
