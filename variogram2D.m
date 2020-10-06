@@ -29,7 +29,7 @@ function [h,g] = variogram2D( X, Z, hmax, nh )
     assert( length(X) == length(Z), 'X and Z must be the same length');
     assert( isscalar(hmax) & isreal(hmax) & hmax>0, 'hmax must be a positive, real scalar');
     assert( isscalar(nh) & isreal(nh) & rem(nh,1)==0 & nh>0, 'nh must be a positive, integer, real scalar');
-    
+    tic
     % Initialize.
     N = length(X);
     H = nan( N*(N-1)/2, 1 );
@@ -43,10 +43,12 @@ function [h,g] = variogram2D( X, Z, hmax, nh )
             G(k) = 0.5*(Z(j)-Z(i))^2;
         end
     end
-    
+    toc
+    tic
     [H,I] = sort(H);
     G = G(I);
-    
+    toc
+    tic
     % Compute the averages
     dh = hmax/nh;
     n = zeros(nh,1);
@@ -65,4 +67,5 @@ function [h,g] = variogram2D( X, Z, hmax, nh )
         end
     end
     h = h * 3.2808;
+    toc
 end
