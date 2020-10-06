@@ -31,7 +31,7 @@
 % Version:
 %   4 Oct 2020
 %------------------------------------------------------------------------------
-function catalogData(srcFolder, dstFile, recursive)
+function [totA, totB, totC] = catalogData(srcFolder, dstFile, recursive)
     tic;
     
     % Process the arguments.
@@ -69,6 +69,11 @@ function catalogData(srcFolder, dstFile, recursive)
         fileList = dir(fullfile(srcFolder, '*.csv'));
     end
     
+    
+    totA = 0;
+    totB = 0;
+    totC = 0;
+    
     % March through each of the .csv files.
     for n = 1:length(fileList)
         filePath = fullfile(fileList(n).folder, fileList(n).name);
@@ -102,23 +107,25 @@ function catalogData(srcFolder, dstFile, recursive)
         
         frewind(sfid);
         
-        dielectric = textscan(sfid, ['%f %*f %*s ', repmat('%*f %*f %*f %s %f %*f %*f %*f %*f %*f %*f ', [1,3]), '%*[^\n] '], 'HeaderLines', headerLines, 'Delimiter',',');
+        dielectric = textscan(sfid, ['%f %*f %*s ', repmat('%f %f %*f %s %f %*f %*f %*f %*f %*f %*f ', [1,3]), '%*[^\n] '], 'HeaderLines', headerLines, 'Delimiter',',');
         
         fclose(sfid);
         
-        lateralOffsetA = dielectric{2};
-        lateralOffsetB = dielectric{4};
-        lateralOffsetC = dielectric{6};
+        lateralOffsetA = dielectric{4};
+        lateralOffsetB = dielectric{8};
+        lateralOffsetC = dielectric{12};
         
-        dielectric{2} = [];
         dielectric{4} = [];
-        dielectric{6} = [];
+        dielectric{8} = [];
+        dielectric{12} = [];
         
         lateralOffsetA = cell2mat(lateralOffsetA);
         lateralOffsetB = cell2mat(lateralOffsetB);
         lateralOffsetC = cell2mat(lateralOffsetC);
         
         dielectric = cell2mat(dielectric);
+
+
         
         
         % Extract the needed information.
@@ -137,6 +144,21 @@ function catalogData(srcFolder, dstFile, recursive)
         interval(n,3) = maxDistance;
         intervalSwerve(n) = contains(fileList(n).name, 'sw');
         
+        if totalLength > 1
+            if intervalSwerve(n) == 0
+                if length(totA) == 1
+                    totA = dielectric(:,2:4);
+                    totB = dielectric(:,5:7);
+                    totC = dielectric(:,8:10);
+                    totFiles = convertCharsToStrings(fileList(n).name);
+                else
+                    totA = [totA; dielectric(:,2:4)];
+                    totB = [totB; dielectric(:,5:7)];
+                    totC = [totC; dielectric(:,8:10)];
+                    totFiles = [totFiles; convertCharsToStrings(fileList(n).name)];
+                end
+            end
+        end
         
         % Write the information out to the catalog.
         fprintf(fid, '''%s'', ''%s'', ''%s'', ''%s'', ''%s'', %d, %.1f, %.1f, %.1f, %.4f, %.4f, %.4f \n', ...
@@ -152,34 +174,40 @@ function catalogData(srcFolder, dstFile, recursive)
         fclose(fid);
     end
     
+    proj = projcrs(26915, 'Authority', 'EPSG');
+    
+    [totA(:,1), totA(:,2)] = projfwd(proj, totA(:,1), totA(:,2));
+    [totB(:,1), totB(:,2)] = projfwd(proj, totB(:,1), totB(:,2));
+    [totC(:,1), totC(:,2)] = projfwd(proj, totC(:,1), totC(:,2));
+    
     % Plot the intrevals of all the files
-    hold on;
-    for i=1:n
-        if intervalSwerve(i)
-            plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], '-r', 'LineWidth', 3, 'DisplayName', 'Swerve')
-        else
-            if abs(interval(i,2)-interval(i,3)) < 2
-                plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], 'om','DisplayName', 'Point')
-            else
-                plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], '-b', 'LineWidth', 3, 'DisplayName', 'Longitudinal')
-            end
-        end    
-    end
-    
-    h = zeros(3, 1);
-    h(1) = plot(NaN,NaN, '-r', 'LineWidth', 3);
-    h(2) = plot(NaN,NaN,'om');
-    h(3) = plot(NaN,NaN,'-b', 'LineWidth', 3);
-    lgd = legend(h, 'Swerve','Point','Longitudinal');
-    title(lgd, 'Collection Path Type');
-    title('Data Collection Intervals');
-    ylabel('Data Set Index [ ]')
-    xlabel('Collection Location [ft]')
-    grid(gca, 'minor');
-    grid on;
-    hold off;
-    
-    fprintf('\n');
-    fprintf('%d .csv files were successfully cataloged. \n', length(fileList));
-    toc
+%     hold on;
+%     for i=1:n
+%         if intervalSwerve(i)
+%             plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], '-r', 'LineWidth', 3, 'DisplayName', 'Swerve')
+%         else
+%             if abs(interval(i,2)-interval(i,3)) < 2
+%                 plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], 'om','DisplayName', 'Point')
+%             else
+%                 plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], '-b', 'LineWidth', 3, 'DisplayName', 'Longitudinal')
+%             end
+%         end    
+%     end
+%     
+%     h = zeros(3, 1);
+%     h(1) = plot(NaN,NaN, '-r', 'LineWidth', 3);
+%     h(2) = plot(NaN,NaN,'om');
+%     h(3) = plot(NaN,NaN,'-b', 'LineWidth', 3);
+%     lgd = legend(h, 'Swerve','Point','Longitudinal');
+%     title(lgd, 'Collection Path Type');
+%     title('Data Collection Intervals');
+%     ylabel('Data Set Index [ ]')
+%     xlabel('Collection Location [ft]')
+%     grid(gca, 'minor');
+%     grid on;
+%     hold off;
+%     
+%     fprintf('\n');
+%     fprintf('%d .csv files were successfully cataloged. \n', length(fileList));
+%     toc
 end
