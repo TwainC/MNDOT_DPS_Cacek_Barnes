@@ -58,7 +58,7 @@ function catalogData(srcFolder, dstFile, recursive)
     
     % The header text needs to align with the output.
     if needsHeader
-        fprintf(fid, '''File Name'', ''Collection Direction'', ''A Lateral Offset'', ''B Lateral Offset'', ''C Lateral Offset'', ''Station Count'', ''Minimum Distance'', ''Maximum Distance'', ''Path Length'', ''A Dielectric Mean'', ''B Dielectric Mean'', ''C Dielectric Mean'', \n');
+        fprintf(fid, '''File Name'', ''Collection Direction'', ''Collection Path Type'', ''A Lateral Offset'', ''B Lateral Offset'', ''C Lateral Offset'', ''Station Count'', ''Minimum Distance'', ''Maximum Distance'', ''Path Length'', ''A Dielectric Mean'', ''B Dielectric Mean'', ''C Dielectric Mean'', \n');
     end
     
     % Make a list of all .csv files in the srcFolder.
@@ -117,6 +117,9 @@ function catalogData(srcFolder, dstFile, recursive)
         lateralOffsetA = cell2mat(lateralOffsetA);
         lateralOffsetB = cell2mat(lateralOffsetB);
         lateralOffsetC = cell2mat(lateralOffsetC);
+       
+        offsetA = strsplit(lateralOffsetA(1,:),{'R','L'});
+        offsetA = str2double(offsetA(1,1));
         
         dielectric = cell2mat(dielectric);
         
@@ -135,12 +138,21 @@ function catalogData(srcFolder, dstFile, recursive)
         interval(n,1) = n;
         interval(n,2) = minDistance;
         interval(n,3) = maxDistance;
-        intervalSwerve(n) = contains(fileList(n).name, 'sw');
+        intervalSwerve(n) = offsetA >= 20;
         
+        if intervalSwerve(n)
+            collectionType(n) = "Swerve";
+        
+        elseif abs(interval(n,2)-interval(n,3)) < 2
+            collectionType(n) = "Point";
+            
+        else
+            collectionType(n) = "Longitudinal";
+        end
         
         % Write the information out to the catalog.
-        fprintf(fid, '''%s'', ''%s'', ''%s'', ''%s'', ''%s'', %d, %.1f, %.1f, %.1f, %.4f, %.4f, %.4f \n', ...
-            fileList(n).name, direction, lateralOffsetA(1,:), lateralOffsetB(1,:), ...
+        fprintf(fid, '''%s'', ''%s'', ''%s'',  ''%s'', ''%s'', ''%s'', %d, %.1f, %.1f, %.1f, %.4f, %.4f, %.4f \n', ...
+            fileList(n).name, direction, collectionType(n), lateralOffsetA(1,:), lateralOffsetB(1,:), ...
             lateralOffsetC(1,:), count, minDistance, maxDistance, totalLength, ...
             meanA, meanB, meanC);
         
@@ -155,10 +167,10 @@ function catalogData(srcFolder, dstFile, recursive)
     % Plot the intrevals of all the files
     hold on;
     for i=1:n
-        if intervalSwerve(i)
+        if collectionType(i) == "Swerve"
             plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], '-r', 'LineWidth', 3, 'DisplayName', 'Swerve')
         else
-            if abs(interval(i,2)-interval(i,3)) < 2
+            if collectionType(i) == "Point"
                 plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], 'om','DisplayName', 'Point')
             else
                 plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], '-b', 'LineWidth', 3, 'DisplayName', 'Longitudinal')
