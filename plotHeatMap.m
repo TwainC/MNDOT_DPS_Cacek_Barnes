@@ -1,21 +1,15 @@
 %==============================================================================
-% function plotHeatMap(A, B, C, varargin)
+% function plotHeatMap(csvPath, varargin)
 %
-%     Plot geographically refferenced dielectric points. Points colored
+%     Extract the location and dielectric data from a standard MnDOT-supplied
+%     .csv file and plot geographically refferenced dielectric points. Points colored
 %     according to dilectric value using a gaussian-scaled colormap.
 %
-%  Arguments:
-% - A : (n x 3) matrix
-%       The three columns are [UTM eastings, UTM northings, dielectric]
-%       for first sensor.
 %
-% - B : (n x 3) matrix
-%       The three columns are [UTM eastings, UTM northings, dielectric]
-%       for second sensor.
-%
-% - C : (n x 3) matrix
-%       The three columns are [UTM eastings, UTM northings, dielectric]
-%       for third sensor.
+% Arguments:
+% - csvPath : string
+%       The complete path to the MnDOT-supplied .csv file. For example,
+%       'D:\MnDOT\TH002_2020-07-27_rdm2__001Raw_Raw.csv'.
 %
 % - varargin : parameter/value pairs
 %       Parameter/value pairs to specify additional properties. The
@@ -52,9 +46,9 @@
 %           Default = standard deviation of the dielectric data sets.
 %
 % Examples:
-%   plotHeatMap(A, B, C)
+%   plotHeatMap(csvPath)
 %
-%   plotHeatMap(A, B, C, ...
+%   plotHeatMap(csvPath, ...
 %       'colormap', 'jet', ...
 %       'colorramp', 'gaussian', ...
 %       'markersize', 15, ...
@@ -74,10 +68,51 @@
 %   University of Minnesota
 %
 % Version:
-%   30 September 2020
+%   12 October 2020
 %==============================================================================
-function plotHeatMap(A, B, C, varargin)
-    narginchk(3, inf);
+function plotHeatMap(csvPath, varargin)
+    
+        
+    % Extract the data for the three sensors.
+    assert(isfile(csvPath), "Cannot find the file %s.\n", csvPath);
+    
+    fid = fopen(csvPath);
+    raw = textscan(fid, ['%f %*f %*s ' ...
+        '%f %f %*f %*s %f %*f %*f %*f %*d %*f %*f ' ...
+        '%f %f %*f %*s %f %*f %*f %*f %*d %*f %*f ' ...
+        '%f %f %*f %*s %f %*f %*f %*f %*d %*f %*f ' ...
+        '%*[^\n]'], ...
+        'Headerlines', 22, 'Delimiter', ',');
+    fclose(fid);
+    
+    % Extract the looked for information.
+    D = raw{1};
+    
+    latA = raw{2};
+    lonA = raw{3};
+    dieA = raw{4};
+    
+    latB = raw{5};
+    lonB = raw{6};
+    dieB = raw{7};
+    
+    latC = raw{8};
+    lonC = raw{9};
+    dieC = raw{10};
+    
+    % Convert lat/lon to UTM.
+    proj = projcrs(26915, 'Authority', 'EPSG');
+    
+    [eastingA, northingA] = projfwd(proj, latA, lonA);
+    [eastingB, northingB] = projfwd(proj, latB, lonB);
+    [eastingC, northingC] = projfwd(proj, latC, lonC);
+    
+    % And... return
+    A = [eastingA, northingA, dieA];
+    B = [eastingB, northingB, dieB];
+    C = [eastingC, northingC, dieC];
+    
+    narginchk(1, inf);
     
     % Set the default values for the options.
     colormap('turbo');
