@@ -1,5 +1,5 @@
 %------------------------------------------------------------------------------
-% [totA, totB, totC] = catalogData(srcFolder, dstFile, recursive)
+% [totA, totB, totC, totD] = catalogData(srcFolder, dstFile, recursive)
 %
 %   Catalog the MnDOT RDM .csv files in srcFolder out to dstFile.
 %
@@ -32,6 +32,9 @@
 %       The three columns are [UTM eastings, UTM northings, dielectric]
 %       for the first sensor concatonated from all data sets cataloged.
 %
+% - totD : (n x 1) array
+%       Collection distances for all points in totA/totB/totC
+%
 % Notes:
 % - Made in compositeVariograms branch to plot composite variograms.
 %
@@ -43,7 +46,7 @@
 % Version:
 %   12 Oct 2020
 %------------------------------------------------------------------------------
-function [totA, totB, totC] = catalogData(srcFolder, dstFile, recursive)
+function [totA, totB, totC, totD] = catalogData(srcFolder, dstFile, recursive)
     tic;
     
     % Process the arguments.
@@ -162,11 +165,13 @@ function [totA, totB, totC] = catalogData(srcFolder, dstFile, recursive)
                     totA = dielectric(:,2:4);
                     totB = dielectric(:,5:7);
                     totC = dielectric(:,8:10);
+                    totD = dielectric(:,1);
                     totFiles = convertCharsToStrings(fileList(n).name);
                 else
                     totA = [totA; dielectric(:,2:4)];
                     totB = [totB; dielectric(:,5:7)];
                     totC = [totC; dielectric(:,8:10)];
+                    totD = [totD; dielectric(:,1)];
                     totFiles = [totFiles; convertCharsToStrings(fileList(n).name)];
                 end
             end
