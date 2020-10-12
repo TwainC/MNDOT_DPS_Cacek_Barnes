@@ -1,5 +1,5 @@
 %------------------------------------------------------------------------------
-% catalogData(srcFolder, dstFile, recursive)
+% [totA, totB, totC] = catalogData(srcFolder, dstFile, recursive)
 %
 %   Catalog the MnDOT RDM .csv files in srcFolder out to dstFile.
 %
@@ -19,9 +19,21 @@
 %       If true then the scrFolder is searched recursively. That is, all
 %       .csv files in the folder and ANY subfolder is cataloged. If false,
 %       only .csv files in the scrFolder are cataloged.
+% Returns:
+% - totA : (n x 3) matrix
+%       The three columns are [UTM eastings, UTM northings, dielectric]
+%       for the first sensor concatonated from all data sets cataloged.
+%
+% - totB : (n x 3) matrix
+%       The three columns are [UTM eastings, UTM northings, dielectric]
+%       for the first sensor concatonated from all data sets cataloged.
+%
+% - totC : (n x 3) matrix
+%       The three columns are [UTM eastings, UTM northings, dielectric]
+%       for the first sensor concatonated from all data sets cataloged.
 %
 % Notes:
-% -
+% - Made in compositeVariograms branch to plot composite variograms.
 %
 % Authors:
 %   Twain Cacek and Dr. Randal J. Barnes
@@ -29,7 +41,7 @@
 %   University of Minnesota
 %
 % Version:
-%   4 Oct 2020
+%   12 Oct 2020
 %------------------------------------------------------------------------------
 function [totA, totB, totC] = catalogData(srcFolder, dstFile, recursive)
     tic;
