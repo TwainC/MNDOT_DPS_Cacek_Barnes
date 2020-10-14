@@ -1,15 +1,6 @@
-n = 1000;
-Xmax = 250;
-Ymax = 10;
-
-alpha = 2*pi*rand();
-Rinv = [cos(alpha), sin(alpha); -sin(alpha), cos(alpha)];    
-
-X = Xmax*rand(1, n);
-Y = Ymax*rand(1, n);
-xy = Rinv*[X; Y];
-x = xy(1,:) + 1000*rand();
-y = xy(2,:) + 1000*rand();
+[A,B,C,D] = extractFilteredDielectric(lonFile);
+x = [A(:,1);B(:,1);C(:,1)]';
+y = [A(:,2);B(:,2);C(:,2)]';
 
 [rectangleLength, rectangleWidth, rectangleTheta, corners] = fitRectangle(x, y);
 
@@ -26,3 +17,4 @@ end
 hold off;
 axis equal;
 
+limit(
