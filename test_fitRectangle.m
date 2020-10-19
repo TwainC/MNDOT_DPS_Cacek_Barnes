@@ -1,4 +1,4 @@
-[A,B,C,D] = extractFilteredDielectric(lonFile);
+[A,B,C,D] = extractFilteredDielectric(swerveFile);
 x = [A(:,1);B(:,1);C(:,1)]';
 y = [A(:,2);B(:,2);C(:,2)]';
 
@@ -17,4 +17,3 @@ end
 hold off;
 axis equal;
 
-limit(
