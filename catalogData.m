@@ -58,7 +58,7 @@ function catalogData(srcFolder, dstFile, recursive)
     
     % The header text needs to align with the output.
     if needsHeader
-        fprintf(fid, '''File Name'', ''Collection Direction'', ''Collection Path Type'', ''A Lateral Offset'', ''B Lateral Offset'', ''C Lateral Offset'', ''Station Count'', ''Minimum Distance'', ''Maximum Distance'', ''Path Length'', ''A Dielectric Mean'', ''B Dielectric Mean'', ''C Dielectric Mean'', \n');
+        fprintf(fid, '''File Name'', ''Collection Direction'', ''Collection Path Type'', ''A Lateral Offset'', ''B Lateral Offset'', ''C Lateral Offset'', ''Station Count'', ''Minimum Distance'', ''Maximum Distance'', ''Path Length'', ''A Dielectric Mean'', ''B Dielectric Mean'', ''C Dielectric Mean'', ''Rectangle Width'', ''Rectangle Length'', ''Notes'' \n');
     end
     
     % Make a list of all .csv files in the srcFolder.
@@ -74,6 +74,7 @@ function catalogData(srcFolder, dstFile, recursive)
         filePath = fullfile(fileList(n).folder, fileList(n).name);
         sfid = fopen(filePath);
         
+        %Find the collection direction
         collectionBool = 0;
         while collectionBool == 0
             line = fgetl(sfid);
@@ -88,6 +89,7 @@ function catalogData(srcFolder, dstFile, recursive)
         
         frewind(sfid);
         
+        %Find how many header lines there are
         headerBool = 0;
         headerLines = 0;
         while headerBool == 0
@@ -102,17 +104,14 @@ function catalogData(srcFolder, dstFile, recursive)
         
         frewind(sfid);
         
-        dielectric = textscan(sfid, ['%f %*f %*s ', repmat('%*f %*f %*f %s %f %*f %*f %*f %*f %*f %*f ', [1,3]), '%*[^\n] '], 'HeaderLines', headerLines, 'Delimiter',',');
+        %Read in all data that will be used in catalog
+        dielectric = textscan(sfid, ['%f %*f %*s ', repmat('%f %f %*f %s %f %*f %*f %*f %*f %*f %*f ', [1,3]), '%*[^\n] '], 'HeaderLines', headerLines, 'Delimiter',',');
         
         fclose(sfid);
         
-        lateralOffsetA = dielectric{2};
-        lateralOffsetB = dielectric{4};
-        lateralOffsetC = dielectric{6};
-        
-        dielectric{2} = [];
-        dielectric{4} = [];
-        dielectric{6} = [];
+        lateralOffsetA = dielectric{4};
+        lateralOffsetB = dielectric{8};
+        lateralOffsetC = dielectric{12};
         
         lateralOffsetA = cell2mat(lateralOffsetA);
         lateralOffsetB = cell2mat(lateralOffsetB);
@@ -120,6 +119,29 @@ function catalogData(srcFolder, dstFile, recursive)
        
         offsetA = strsplit(lateralOffsetA(1,:),{'R','L'});
         offsetA = str2double(offsetA(1,1));
+        
+        latA = dielectric{2};
+        lonA = dielectric{3};
+        latB = dielectric{6};
+        lonB = dielectric{7};
+        latC = dielectric{10};
+        lonC = dielectric{11};
+        
+        dielectric([2:4,6:8,10:12]) = [];
+        
+        % Convert lat/lon to UTM.
+        proj = projcrs(26915, 'Authority', 'EPSG');
+        
+        [eastingA, northingA] = projfwd(proj, latA, lonA);
+        [eastingB, northingB] = projfwd(proj, latB, lonB);
+        [eastingC, northingC] = projfwd(proj, latC, lonC);
+        
+        % And... return
+        A = [eastingA, northingA];
+        B = [eastingB, northingB];
+        C = [eastingC, northingC];
+        
+        recXY = [A;B;C]';
         
         dielectric = cell2mat(dielectric);
         
@@ -138,11 +160,31 @@ function catalogData(srcFolder, dstFile, recursive)
         interval(n,1) = n;
         interval(n,2) = minDistance;
         interval(n,3) = maxDistance;
-        intervalSwerve(n) = offsetA >= 20;
         
-        if intervalSwerve(n)
+        [recLength, recWidth, theta, corners] = fitRectangle(recXY(1,:),recXY(2,:));
+        
+        %Convert rectangle dimensions to feet
+        recLength = recLength * 3.28;
+        recWidth = recWidth * 3.28;
+        
+        notes = 'N/A';
+        
+        %Check 3 conditions that indicate a swerve data set
+        intervalSwerve(n,1) = offsetA >= 20;
+        intervalSwerve(n,2) = contains(fileList(n).name,'sw');
+        intervalSwerve(n,3) = recWidth > 5;
+        
+        if sum(intervalSwerve(n,:)) == 3
             collectionType(n) = "Swerve";
-        
+            
+        elseif sum(intervalSwerve(n,:)) == 1 | sum(intervalSwerve(n,:)) == 2
+            collectionType(n) = "See Notes"
+            if intervalSwerve(n,3)
+                notes = 'Swerve by rectangle width. Other criteria do not agree. Check offset and file name';
+            else
+                notes = 'Not swerve by rectangle width. Other criteria do not agree. Check offset and file name';
+            end
+            
         elseif abs(interval(n,2)-interval(n,3)) < 2
             collectionType(n) = "Point";
             
@@ -151,10 +193,10 @@ function catalogData(srcFolder, dstFile, recursive)
         end
         
         % Write the information out to the catalog.
-        fprintf(fid, '''%s'', ''%s'', ''%s'',  ''%s'', ''%s'', ''%s'', %d, %.1f, %.1f, %.1f, %.4f, %.4f, %.4f \n', ...
+        fprintf(fid, '''%s'', ''%s'', ''%s'',  ''%s'', ''%s'', ''%s'', %d, %.1f, %.1f, %.1f, %.4f, %.4f, %.4f, %.2f, %.2f, ''%s'' \n', ...
             fileList(n).name, direction, collectionType(n), lateralOffsetA(1,:), lateralOffsetB(1,:), ...
             lateralOffsetC(1,:), count, minDistance, maxDistance, totalLength, ...
-            meanA, meanB, meanC);
+            meanA, meanB, meanC, recWidth, recLength, notes);
         
     end
     
