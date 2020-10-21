@@ -23,8 +23,11 @@
 %       for third sensor.
 %
 % - D : (n x 1) matrix
-%       The are the "distances" if [ft] record by the cart based on a 
+%       The "distances" of [ft] record by the cart based on a 
 %       wheel rotation.
+%
+% - offsets: (3 x 1)  array
+%       The offsets of each sensor
 %
 % Notes:
 % - The function reads in the recorded GPS-based lat/lon information for the 
@@ -42,18 +45,18 @@
 %   want the coordinates and dielectric values.
 %
 % Version:
-%   17 September 2020
+%   21 October 2020
 %==============================================================================
-function [A, B, C, D] = extractFilteredDielectric(csvPath)
+function [A, B, C, D, offsets] = extractFilteredDielectric(csvPath)
     
     % Extract the data for the three sensors.
     assert(isfile(csvPath), "Cannot find the file %s.\n", csvPath);
     
     fid = fopen(csvPath);
     raw = textscan(fid, ['%f %*f %*s ' ...
-        '%f %f %*f %*s %f %*f %*f %*f %*d %*f %*f ' ...
-        '%f %f %*f %*s %f %*f %*f %*f %*d %*f %*f ' ...
-        '%f %f %*f %*s %f %*f %*f %*f %*d %*f %*f ' ...
+        '%f %f %*f %s %f %*f %*f %*f %*d %*f %*f ' ...
+        '%f %f %*f %s %f %*f %*f %*f %*d %*f %*f ' ...
+        '%f %f %*f %s %f %*f %*f %*f %*d %*f %*f ' ...
         '%*[^\n]'], ...
         'Headerlines', 22, 'Delimiter', ',');
     fclose(fid);
@@ -63,15 +66,28 @@ function [A, B, C, D] = extractFilteredDielectric(csvPath)
     
     latA = raw{2};
     lonA = raw{3};
-    dieA = raw{4};
+    offsetA = raw{4};
+    dieA = raw{5};
     
-    latB = raw{5};
-    lonB = raw{6};
-    dieB = raw{7};
+    latB = raw{6};
+    lonB = raw{7};
+    offsetB = raw{8};
+    dieB = raw{9};
     
-    latC = raw{8};
-    lonC = raw{9};
-    dieC = raw{10};
+    latC = raw{10};
+    lonC = raw{11};
+    offsetC = raw{12};
+    dieC = raw{13};
+    
+    offsetA = cell2mat(offsetA);
+    offsetB = cell2mat(offsetB);
+    offsetC = cell2mat(offsetC);
+    
+    offsetA = convertCharsToStrings(offsetA(1,:));
+    offsetB = convertCharsToStrings(offsetB(1,:));
+    offsetC = convertCharsToStrings(offsetC(1,:));
+    
+    offsets = [offsetA(1),offsetB(1),offsetC(1)];
     
     % Convert lat/lon to UTM.
     proj = projcrs(26915, 'Authority', 'EPSG');
