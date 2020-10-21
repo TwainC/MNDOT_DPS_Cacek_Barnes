@@ -84,6 +84,20 @@ function [totA, totB, totC, totD] = catalogData(srcFolder, dstFile, recursive)
         fileList = dir(fullfile(srcFolder, '*.csv'));
     end
     
+    lenList = length(fileList);
+    
+    for i=1:lenList
+        if contains(fileList(i).name,'Statistic')
+            fileList(i) = [];
+        end
+        
+        lenList = length(fileList);
+        
+        if i >= lenList
+            break
+        end
+    end
+    
     
     totA = 0;
     totB = 0;
