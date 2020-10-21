@@ -1,32 +1,29 @@
 %------------------------------------------------------------------------------
-% [rectangleLength, rectangleWidth, rectangleTheta, corners] = fitRectangle(x, y)
-%
-%   Finds the rectangle with the smallest minimum dimension that contains all
-%   of the points (x,y). This rectangle is not necessarily axis-aligned.
+% [varRib, meanRib, nPoints] = ribbonDielectric(csvPath,d,n)
+% 
+%   Finds the smallest bounding rectangle for the input data set, then 
+%   breaks the set into segments (ribbons) according to input parameters. 
+%   Bounding rectangle, ribbons, centerline refference, and data set 
+%   plotted together. Mean, Variance, and number of points for each segment 
+%   are returned as arrays.
 %
 % Arguments:
-%   x : (1 x n) row vector
-%       The x-coordinates of the points.
+%   csvPath : character array or string
+%       The path for the data file that will be examined.
 %
-%   y : (1 x n) row vector
-%       The y-coordinates of the points.
+%   d : scalar
+%       The width of each ribbon segment in [ft].
+%
+%   n : scalar
+%       Number of ribbon segments.
+%
+%   Note:
+%       -If both d and n are inputted, function will use d automatically.
 %
 % Returns:
-%   rectangleLength : double
-%       The maximum dimension of the bounding rectangle.
-%
-%   rectangleWidth : double
-%       The minimum dimension of the bounding rectangle.
-%
-%   rectangleTheta : double
-%       The rotation angle [rad] to make the bounding rectangle axis-aligned
-%       with the longest dimension parallel to the horizontal axis.
-%
-%   corners : (2x4) array
-%       The four corner points of the optimal rectangle. The first row are the
-%       x-coordinates of the corners, the second row are the y-coordinates of
-%       the corners. The corners are ordered so as to traverse the bounding 
-%       rectangle counterclockwise.
+%   meanVarRib : (3 x n) matrix
+%       The sample variance, mean, and number of data points corresponding 
+%       to each ribbon segment.      
 %
 % Author:
 %   Twain Cacek
@@ -34,16 +31,17 @@
 %   University of Minnesota
 %
 % Version:
-%   14 October 2020
+%   21 October 2020
 %------------------------------------------------------------------------------
 
-function ribbonDielectric(csvPath,d,n)
+function meanVarRib = ribbonDielectric(csvPath,d,n)
     
 
     
     %Extract UTM from input data, form row vector, and find the bounding
     %rectangle
-    [A,B,C,D] = extractFilteredDielectric(csvPath);
+    [A,B,C,D,offsets] = extractFilteredDielectric(csvPath);
+    
     totUTM = [A;B;C]';
     UTM = totUTM(1:2,:);
     easting = UTM(1,:);
@@ -71,21 +69,53 @@ function ribbonDielectric(csvPath,d,n)
     
     %Create UTM array rotated to become axis aligned
     utmR = R*UTM;
-    northingR = utmR(2,:);
+    V = utmR(2,:);
+    U = utmR(1,:);
     
     %Find midpoint of the northing values to bring them to the easting-axis
-    midpointY = (max(utmR(2,:)) + min((utmR(2,:))))/2;
-    northingR = northingR - midpointY;
+    midpointV = (max(utmR(2,:)) + min((utmR(2,:))))/2;
+    midpointU = (max(utmR(1,:)) + min((utmR(1,:))))/2;
+    V = V - midpointV;
+    U = U - midpointU;
+    
+    %Checks that the rectangle has length axis along easting axis
+    if (max(V) - min(V)) > 10
+        theta = theta - pi/2;
+        R = [cos(theta), -sin(theta); sin(theta), cos(theta)];
+        Rinv = [cos(theta), sin(theta); -sin(theta), cos(theta)];
+        utmR = R*UTM;
+        V = utmR(2,:);
+        U = utmR(1,:);
+        midpointV = (max(utmR(2,:)) + min((utmR(2,:))))/2;
+        midpointU = (max(utmR(1,:)) + min((utmR(1,:))))/2;
+        V = V - midpointV;
+        U = U - midpointU;
+    end
+    
+    %Checks that the dataset begins in -easting and ends in +easting
+    if U(1) > U(end)
+        theta = theta - pi;
+        R = [cos(theta), -sin(theta); sin(theta), cos(theta)];
+        Rinv = [cos(theta), sin(theta); -sin(theta), cos(theta)];
+        utmR = R*UTM;
+        V = utmR(2,:);
+        U = utmR(1,:);
+        midpointV = (max(utmR(2,:)) + min((utmR(2,:))))/2;
+        midpointU = (max(utmR(1,:)) + min((utmR(1,:))))/2;
+        V = V - midpointV;
+        U = U - midpointU;
+    end
     
     %Convert the rectangle corners to our rotated coordinate system
     cornersR = R*corners;
-    cornersR(2,:) = cornersR(2,:) - midpointY;
+    cornersR(2,:) = cornersR(2,:) - midpointV;
     
     %Check for ribbon distance/quantity parameter - d chosen over n when
     %both given
     if isempty(d)
-        ribbons = linspace(max(cornersR(2,:)),min(cornersR(2,:)),n);
+        ribbons = linspace(max(cornersR(2,:)),min(cornersR(2,:)),n+1);
     else
+        d = d/3.28;
         ribbons = (max(cornersR(2,:)):-d:min(cornersR(2,:)));
         if ribbons(end) ~= min(cornersR(2,:))
             ribbons(end + 1) = min(cornersR(2,:));
@@ -97,7 +127,7 @@ function ribbonDielectric(csvPath,d,n)
     
     for i=1:length(ribbons)-1
         %Create boolean array for data points within ribbon bounds
-        I = northingR >= ribbons(i+1) & northingR <= ribbons(i);
+        I = V >= ribbons(i+1) & V <= ribbons(i);
         
         %Label each point with corresponding ribbon and store ribbon data
         totUTM(4,:) = totUTM(4,:) + I*i;
@@ -110,12 +140,64 @@ function ribbonDielectric(csvPath,d,n)
         
         %Create array for plotting the ribbon boundaries
         ribbonLine = [min(utmR(1,:)) max(utmR(1,:)); ribbons(i) ribbons(i)];
-        ribbonLine(2,:) = ribbonLine(2,:) + midpointY;
+        ribbonLine(2,:) = ribbonLine(2,:) + midpointV;
         ribbonLine = Rinv * ribbonLine;
         plot(ribbonLine(1,:),ribbonLine(2,:),'-r');
         
         clear ribbonData; clear h; clear g; clear N; clear ribbonLine;
     end
+    
+    ribbonLine = [min(utmR(1,:)) max(utmR(1,:)); ribbons(end) ribbons(end)];
+    ribbonLine(2,:) = ribbonLine(2,:) + midpointV;
+    ribbonLine = Rinv * ribbonLine;
+    plot(ribbonLine(1,:),ribbonLine(2,:),'-r');
+    
+    offsetA = strsplit(offsets(1),{'R','L'});
+    offsetC = strsplit(offsets(3),{'R','L'});
+    
+    offsetDA = str2double(offsetA(1));
+    offsetDC = str2double(offsetC(1));
+    
+    if offsetDA > offsetDC
+        if abs(ribbons(end)-V(1)) > abs(ribbons(end)-V(2*length(A)+1))
+            ribbonLine = [min(utmR(1,:)) max(utmR(1,:)); ribbons(end) ribbons(end)];    
+            ribbonLine(2,:) = ribbonLine(2,:) + midpointV;
+            ribbonLine = Rinv * ribbonLine;
+            plot(ribbonLine(1,:),ribbonLine(2,:),'-g');
+            ribbons = abs(ribbons - ribbons(end));
+            ribbons = flip(ribbons);
+            meanRib = flip(meanRib);
+            varRib = flip(varRib);
+            
+        else
+            ribbonLine = [min(utmR(1,:)) max(utmR(1,:)); ribbons(1) ribbons(1)];      
+            ribbonLine(2,:) = ribbonLine(2,:) + midpointV;
+            ribbonLine = Rinv * ribbonLine;
+            plot(ribbonLine(1,:),ribbonLine(2,:),'-g');
+            ribbons = abs(ribbons - ribbons(1));
+            
+        end
+    else
+        if abs(ribbons(end)-V(1)) < abs(ribbons(end)-V(2*length(A)+1))
+            ribbonLine = [min(utmR(1,:)) max(utmR(1,:)); ribbons(end) ribbons(end)];
+            ribbonLine(2,:) = ribbonLine(2,:) + midpointV;
+            ribbonLine = Rinv * ribbonLine;
+            plot(ribbonLine(1,:),ribbonLine(2,:),'-g');
+            ribbons = abs(ribbons - ribbons(end));
+            ribbons = flip(ribbons);
+            meanRib = flip(meanRib);
+            varRib = flip(varRib);
+            
+        else
+            ribbonLine = [min(utmR(1,:)) max(utmR(1,:)); ribbons(1) ribbons(1)];
+            ribbonLine(2,:) = ribbonLine(2,:) + midpointV;
+            ribbonLine = Rinv * ribbonLine;
+            plot(ribbonLine(1,:),ribbonLine(2,:),'-g');
+            ribbons = abs(ribbons - ribbons(1));
+            
+        end
+    end
+meanVarRib = [ribbons*3.28; 0,meanRib; 0,varRib; 0,nPoints];
     hold off
 end
 
