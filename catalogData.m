@@ -58,7 +58,7 @@ function catalogData(srcFolder, dstFile, recursive)
     
     % The header text needs to align with the output.
     if needsHeader
-        fprintf(fid, '''File Name'', ''Collection Direction'', ''Collection Path Type'', ''A Lateral Offset'', ''B Lateral Offset'', ''C Lateral Offset'', ''Station Count'', ''Minimum Distance'', ''Maximum Distance'', ''Path Length'', ''A Dielectric Mean'', ''B Dielectric Mean'', ''C Dielectric Mean'', ''Rectangle Width'', ''Rectangle Length'', ''Notes'' \n');
+        fprintf(fid, '''File Name'', ''Collection Direction'', ''Collection Path Type'', ''A Lateral Offset'', ''B Lateral Offset'', ''C Lateral Offset'', ''Station Count'', ''Minimum Distance'', ''Maximum Distance'', ''Path Length'', ''A Dielectric Mean'', ''A Dielectric Variance'', ''B Dielectric Mean'', ''B Dielectric Variance'', ''C Dielectric Mean'', ''C Dielectric Variance'', ''Rectangle Width'', ''Rectangle Length'', ''Notes'' \n');
     end
     
     % Make a list of all .csv files in the srcFolder.
@@ -157,6 +157,10 @@ function catalogData(srcFolder, dstFile, recursive)
         meanB = mean(dielectric(:,3));
         meanC = mean(dielectric(:,4));
         
+        varA = var(dielectric(:,2));
+        varB = var(dielectric(:,3));
+        varC = var(dielectric(:,4));
+        
         interval(n,1) = n;
         interval(n,2) = minDistance;
         interval(n,3) = maxDistance;
@@ -193,10 +197,10 @@ function catalogData(srcFolder, dstFile, recursive)
         end
         
         % Write the information out to the catalog.
-        fprintf(fid, '''%s'', ''%s'', ''%s'',  ''%s'', ''%s'', ''%s'', %d, %.1f, %.1f, %.1f, %.4f, %.4f, %.4f, %.2f, %.2f, ''%s'' \n', ...
+        fprintf(fid, '''%s'', ''%s'', ''%s'',  ''%s'', ''%s'', ''%s'', %d, %.1f, %.1f, %.1f, %.4f, %.4f, %.4f,%.4f, %.4f, %.4f, %.2f, %.2f, ''%s'' \n', ...
             fileList(n).name, direction, collectionType(n), lateralOffsetA(1,:), lateralOffsetB(1,:), ...
             lateralOffsetC(1,:), count, minDistance, maxDistance, totalLength, ...
-            meanA, meanB, meanC, recWidth, recLength, notes);
+            meanA, varA, meanB, varB, meanC, varC, recWidth, recLength, notes);
         
     end
     
