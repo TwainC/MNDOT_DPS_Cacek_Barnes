@@ -64,11 +64,11 @@ function [means, sds] = extractAndPlotVariogram(csvPath)
     hmax = 10;
     nh = 50;
     
-    [hA, gA] = variogram2D(A(:,1:2), A(:,3), hmax, nh);
+    [hA, gA] = computeVariogram2D(A(:,1:2), A(:,3), hmax, nh);
     
-    [hB, gB] = variogram2D(B(:,1:2), B(:,3), hmax, nh);
+    [hB, gB] = computeVariogram2D(B(:,1:2), B(:,3), hmax, nh);
     
-    [hC, gC] = variogram2D(C(:,1:2), C(:,3), hmax, nh);
+    [hC, gC] = computeVariogram2D(C(:,1:2), C(:,3), hmax, nh);
     
     plot(hA, gA, 'o', 'MarkerFaceColor','r', 'MarkerEdgecolor','k');
     hold on
