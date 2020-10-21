@@ -63,12 +63,26 @@ function catalogData(srcFolder, dstFile, recursive)
     
     % Make a list of all .csv files in the srcFolder.
     if recursive
-        % fileList = dir(fullfile(srcFolder, '**\*.csv'));
         fileList = dir(fullfile(srcFolder, '**/*.csv'));
     else
         fileList = dir(fullfile(srcFolder, '*.csv'));
     end
     
+    lenList = length(fileList);
+    
+    for i=1:lenList
+        if contains(fileList(i).name,'Statistic')
+            fileList(i) = [];
+        end
+        
+        lenList = length(fileList);
+        
+        if i >= lenList
+            break
+        end
+    end
+        
+
     % March through each of the .csv files.
     for n = 1:length(fileList)
         filePath = fullfile(fileList(n).folder, fileList(n).name);
