@@ -122,6 +122,26 @@ function meanVarRib = ribbonDielectric(csvPath,d,n)
         end
     end
     
+    offsetA = strsplit(offsets(1),{'R','L'});
+    offsetC = strsplit(offsets(3),{'R','L'});
+    
+    offsetDA = str2double(offsetA(1));
+    offsetDC = str2double(offsetC(1));
+    
+    AoverC = offsetDA > offsetDC;
+    
+    if AoverC | ~isempty(d)
+        if abs(ribbons(end)-V(1)) > abs(ribbons(end)-V(2*length(A)+1))
+            ribbons = (min(cornersR(2,:)):d:max(cornersR(2,:)));
+            ribbons = flip(ribbons);
+        end
+    else
+        if abs(ribbons(end)-V(1)) < abs(ribbons(end)-V(2*length(A)+1))
+            ribbons = (min(cornersR(2,:)):d:max(cornersR(2,:)));
+            ribbons = flip(ribbons);
+        end
+    end
+    
     %Initialize the ribbon marker row
     totUTM(4,:) = 0;
     
@@ -152,51 +172,51 @@ function meanVarRib = ribbonDielectric(csvPath,d,n)
     ribbonLine = Rinv * ribbonLine;
     plot(ribbonLine(1,:),ribbonLine(2,:),'-r');
     
-    offsetA = strsplit(offsets(1),{'R','L'});
-    offsetC = strsplit(offsets(3),{'R','L'});
+    ribbonLine = [min(utmR(1,:)) max(utmR(1,:)); ribbons(1) ribbons(1)];
+    ribbonLine(2,:) = ribbonLine(2,:) + midpointV;
+    ribbonLine = Rinv * ribbonLine;
+    plot(ribbonLine(1,:),ribbonLine(2,:),'-g');
     
-    offsetDA = str2double(offsetA(1));
-    offsetDC = str2double(offsetC(1));
     
-    if offsetDA > offsetDC
-        if abs(ribbons(end)-V(1)) > abs(ribbons(end)-V(2*length(A)+1))
-            ribbonLine = [min(utmR(1,:)) max(utmR(1,:)); ribbons(end) ribbons(end)];    
-            ribbonLine(2,:) = ribbonLine(2,:) + midpointV;
-            ribbonLine = Rinv * ribbonLine;
-            plot(ribbonLine(1,:),ribbonLine(2,:),'-g');
-            ribbons = abs(ribbons - ribbons(end));
-            ribbons = flip(ribbons);
-            meanRib = flip(meanRib);
-            varRib = flip(varRib);
-            
-        else
-            ribbonLine = [min(utmR(1,:)) max(utmR(1,:)); ribbons(1) ribbons(1)];      
-            ribbonLine(2,:) = ribbonLine(2,:) + midpointV;
-            ribbonLine = Rinv * ribbonLine;
-            plot(ribbonLine(1,:),ribbonLine(2,:),'-g');
-            ribbons = abs(ribbons - ribbons(1));
-            
-        end
-    else
-        if abs(ribbons(end)-V(1)) < abs(ribbons(end)-V(2*length(A)+1))
-            ribbonLine = [min(utmR(1,:)) max(utmR(1,:)); ribbons(end) ribbons(end)];
-            ribbonLine(2,:) = ribbonLine(2,:) + midpointV;
-            ribbonLine = Rinv * ribbonLine;
-            plot(ribbonLine(1,:),ribbonLine(2,:),'-g');
-            ribbons = abs(ribbons - ribbons(end));
-            ribbons = flip(ribbons);
-            meanRib = flip(meanRib);
-            varRib = flip(varRib);
-            
-        else
-            ribbonLine = [min(utmR(1,:)) max(utmR(1,:)); ribbons(1) ribbons(1)];
-            ribbonLine(2,:) = ribbonLine(2,:) + midpointV;
-            ribbonLine = Rinv * ribbonLine;
-            plot(ribbonLine(1,:),ribbonLine(2,:),'-g');
-            ribbons = abs(ribbons - ribbons(1));
-            
-        end
-    end
+%     if AoverC
+%         if abs(ribbons(end)-V(1)) > abs(ribbons(end)-V(2*length(A)+1))
+%             ribbonLine = [min(utmR(1,:)) max(utmR(1,:)); ribbons(end) ribbons(end)];    
+%             ribbonLine(2,:) = ribbonLine(2,:) + midpointV;
+%             ribbonLine = Rinv * ribbonLine;
+%             plot(ribbonLine(1,:),ribbonLine(2,:),'-g');
+%            ribbons = abs(ribbons - ribbons(end));
+%             ribbons = flip(ribbons);
+%             meanRib = flip(meanRib);
+%             varRib = flip(varRib);
+%             
+%         else
+%             ribbonLine = [min(utmR(1,:)) max(utmR(1,:)); ribbons(1) ribbons(1)];      
+%             ribbonLine(2,:) = ribbonLine(2,:) + midpointV;
+%             ribbonLine = Rinv * ribbonLine;
+%             plot(ribbonLine(1,:),ribbonLine(2,:),'-g');
+%             ribbons = abs(ribbons - ribbons(1));
+%             
+%         end
+%     else
+%         if abs(ribbons(end)-V(1)) < abs(ribbons(end)-V(2*length(A)+1))
+%             ribbonLine = [min(utmR(1,:)) max(utmR(1,:)); ribbons(end) ribbons(end)];
+%             ribbonLine(2,:) = ribbonLine(2,:) + midpointV;
+%             ribbonLine = Rinv * ribbonLine;
+%             plot(ribbonLine(1,:),ribbonLine(2,:),'-g');
+%             ribbons = abs(ribbons - ribbons(end));
+%             ribbons = flip(ribbons);
+%             meanRib = flip(meanRib);
+%             varRib = flip(varRib);
+%             
+%         else
+%             ribbonLine = [min(utmR(1,:)) max(utmR(1,:)); ribbons(1) ribbons(1)];
+%             ribbonLine(2,:) = ribbonLine(2,:) + midpointV;
+%             ribbonLine = Rinv * ribbonLine;
+%             plot(ribbonLine(1,:),ribbonLine(2,:),'-g');
+%             ribbons = abs(ribbons - ribbons(1));
+%         end
+%     end
+ribbons = abs(ribbons(1,:)-ribbons(1));
 meanVarRib = [ribbons*3.28; 0,meanRib; 0,varRib; 0,nPoints];
     hold off
 end
