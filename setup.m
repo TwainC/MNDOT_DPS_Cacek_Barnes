@@ -5,7 +5,7 @@ allData = '/Users/TwainCacekHD/Desktop/Grad School (2020-2021)/Research/Data/Pre
 notLon = '/Users/TwainCacekHD/Desktop/Grad School (2020-2021)/Research/Data/Presentation Data/TH002_L1_2020-07-28_RMD2_RawData/TH002_L1_2020-07-28_rdm2__015.csv';
 folder727Path = "/Users/TwainCacekHD/Desktop/Grad School (2020-2021)/Research/Data/TH002_L1_2020-07-27_RMD2_RawData";
 folder728Path = "/Users/TwainCacekHD/Desktop/Grad School (2020-2021)/Research/Data/TH002_L1_2020-07-28_RMD2_RawData";
-MNRoad = '/Users/TwainCacekHD/Desktop/Grad School (2020-2021)/Research/Data/2020-10-01-Cell139'
+MNRoad = '/Users/TwainCacekHD/Desktop/Grad School (2020-2021)/Research/Data/2020-10-01-Cell139';
 swerveFiles727 = ["TH002_sw_2020-07-27_rdm2__001.csv"
 "TH002_sw_2020-07-27_rdm2__002.csv"
 "TH002_sw_2020-07-27_rdm2__003-.csv"
