@@ -60,3 +60,36 @@ swerveFiles728 = ["TH002_L1_sw_2020-07-28_rdm2__001.csv"
 "TH002_sw_2020-07-28_rdm2__032.csv"];
 swerveFilePaths728 = folder728Path + "/" + swerveFiles728;
 swerveFilePaths = [swerveFilePaths727; swerveFilePaths728];
+lonFiles727 = ["TH002_2020-07-27_rdm2__001.csv"
+"TH002_2020-07-27_rdm2__003.csv"
+"TH002_2020-07-27_rdm2__005.csv"
+"TH002_2020-07-27_rdm2__006.csv"
+"TH002_2020-07-27_rdm2__007.csv"
+"TH002_2020-07-27_rdm2__009.csv"
+"TH002_2020-07-27_rdm2__011.csv"
+"TH002_2020-07-27_rdm2__012.csv"
+"TH002_2020-07-27_rdm2__013.csv"
+"TH002_2020-07-27_rdm2__014.csv"
+"TH002_2020-07-27_rdm2__015.csv"
+"TH002_2020-07-27_rdm2__016.csv"
+"TH002_2020-07-27_rdm2__018_.csv"
+"TH002_2020-07-27_rdm2__022.csv"];
+
+lonFiles728 = ["TH002_L1_2020-07-28_rdm2__001.csv"
+"TH002_L1_2020-07-28_rdm2__002.csv"
+"TH002_L1_2020-07-28_rdm2__004.csv"
+"TH002_L1_2020-07-28_rdm2__005.csv"
+"TH002_L1_2020-07-28_rdm2__012.csv"
+"TH002_L1_2020-07-28_rdm2__015.csv"
+"TH002_L1_2020-07-28_rdm2__017.csv"
+"TH002_L1_2020-07-28_rdm2__018.csv"
+"TH002_L1_2020-07-28_rdm2__019.csv"
+"TH002_L1_2020-07-28_rdm2__020.csv"
+"TH002_L1_2020-07-28_rdm2__021.csv"
+"TH002_L1_2020-07-28_rdm2__022.csv"
+"TH002_L1_2020-07-28_rdm2__028.csv"
+"TH002_L1_2020-07-28_rdm2__029.csv"];
+
+lonFilePaths727 = folder727Path + "/" + lonFiles727;
+lonFilePaths728 = folder728Path + "/" + lonFiles728;
+
