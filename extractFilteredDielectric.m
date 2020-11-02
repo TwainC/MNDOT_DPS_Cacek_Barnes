@@ -1,5 +1,5 @@
 %==============================================================================
-% function [A, B, C, D] = extractFilteredDielectric(csvPath)
+% function [A, B, C, D, offsets] = extractFilteredDielectric(csvPath)
 %
 %   Extract the location and dielectric data from a standard MnDOT-supplied
 %   .csv file.
