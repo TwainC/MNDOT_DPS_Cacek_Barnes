@@ -29,7 +29,7 @@
 %   University of Minnesota
 %
 % Version:
-%   21 Oct 2020
+%   2 Nov 2020
 %------------------------------------------------------------------------------
 function catalogData(srcFolder, dstFile, recursive)
     tic;
