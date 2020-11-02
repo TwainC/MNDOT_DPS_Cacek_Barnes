@@ -116,7 +116,7 @@ function plotHeatMap(csvPath, varargin)
     
     % Set the default values for the options.
     colormap('turbo');
-    colorramp = 'linear';
+    colorramp = 'gaussian';
     markersize = 10;
     lowerbound = min([A(:,3); B(:,3); C(:,3)]);
     upperbound = max([A(:,3); B(:,3); C(:,3)]);
