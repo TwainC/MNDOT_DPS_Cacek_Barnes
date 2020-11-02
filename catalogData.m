@@ -195,8 +195,8 @@ function catalogData(srcFolder, dstFile, recursive)
         if sum(intervalSwerve(n,:)) == 3
             collectionType(n) = "Swerve";
             
-        elseif sum(intervalSwerve(n,:)) == 1 | sum(intervalSwerve(n,:)) == 2
-            collectionType(n) = "See Notes"
+        elseif sum(intervalSwerve(n,:)) == 1 || sum(intervalSwerve(n,:)) == 2
+            collectionType(n) = "See Notes";
             if intervalSwerve(n,3)
                 notes = 'Swerve by rectangle width. Other criteria do not agree. Check offset and file name';
             else
@@ -232,8 +232,10 @@ function catalogData(srcFolder, dstFile, recursive)
         else
             if collectionType(i) == "Point"
                 plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], 'om','DisplayName', 'Point')
-            else
+            elseif collectionType(i) == "Longitudinal"
                 plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], '-b', 'LineWidth', 3, 'DisplayName', 'Longitudinal')
+            else
+                plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], '-g', 'LineWidth', 3, 'DisplayName', 'See Notes')
             end
         end    
     end
@@ -242,7 +244,8 @@ function catalogData(srcFolder, dstFile, recursive)
     h(1) = plot(NaN,NaN, '-r', 'LineWidth', 3);
     h(2) = plot(NaN,NaN,'om');
     h(3) = plot(NaN,NaN,'-b', 'LineWidth', 3);
-    lgd = legend(h, 'Swerve','Point','Longitudinal');
+    h(4) = plot(NaN, NaN,'-g','LineWidth',3);
+    lgd = legend(h, 'Swerve','Point','Longitudinal', 'See Notes');
     title(lgd, 'Collection Path Type');
     title('Data Collection Intervals');
     ylabel('Data Set Index [ ]')
