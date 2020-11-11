@@ -29,6 +29,9 @@
 % - offsets: (3 x 1)  array
 %       The offsets of each sensor
 %
+% - serials: (3 x 1) array
+%       The serial numbers of each sensor in order of A,B,C
+%
 % Notes:
 % - The function reads in the recorded GPS-based lat/lon information for the 
 %   sensors' locations and converts these to UTM coordinates (e.g. [m]).
@@ -45,21 +48,35 @@
 %   want the coordinates and dielectric values.
 %
 % Version:
-%   21 October 2020
+%   9 November 2020
 %==============================================================================
-function [A, B, C, D, offsets] = extractFilteredDielectric(csvPath)
+function [A, B, C, D, offsets, serials] = extractFilteredDielectric(csvPath)
     
     % Extract the data for the three sensors.
     assert(isfile(csvPath), "Cannot find the file %s.\n", csvPath);
     
     fid = fopen(csvPath);
-    raw = textscan(fid, ['%f %*f %*s ' ...
-        '%f %f %*f %s %f %*f %*f %*f %*d %*f %*f ' ...
-        '%f %f %*f %s %f %*f %*f %*f %*d %*f %*f ' ...
-        '%f %f %*f %s %f %*f %*f %*f %*d %*f %*f ' ...
-        '%*[^\n]'], ...
-        'Headerlines', 22, 'Delimiter', ',');
+    
+    %Find how many header lines there are
+    headerBool = 0;
+    headerLines = 0;
+    while headerBool == 0
+        line = fgetl(fid);
+        if length(line) > 8
+            if line(1:8) == 'Distance'
+                headerBool = 1;
+            end
+        end
+        headerLines = headerLines + 1;
+    end
+    
+    frewind(fid);
+    
+    %Read in all data that will be used in catalog
+    raw = textscan(fid, ['%f %*f %*s ', repmat('%f %f %*f %s %f %*f %*f %*f %s %*f %*f ', [1,3]), '%*[^\n] '], 'HeaderLines', headerLines, 'Delimiter',',');
+    
     fclose(fid);
+
     
     % Extract the looked for information.
     D = raw{1};
@@ -68,16 +85,22 @@ function [A, B, C, D, offsets] = extractFilteredDielectric(csvPath)
     lonA = raw{3};
     offsetA = raw{4};
     dieA = raw{5};
+    serialA = raw{6};
+    serialA = convertCharsToStrings(cell2mat(serialA(1)));
     
-    latB = raw{6};
-    lonB = raw{7};
-    offsetB = raw{8};
-    dieB = raw{9};
+    latB = raw{7};
+    lonB = raw{8};
+    offsetB = raw{9};
+    dieB = raw{10};
+    serialB = raw{11};
+    serialB = convertCharsToStrings(cell2mat(serialB(1)));
     
-    latC = raw{10};
-    lonC = raw{11};
-    offsetC = raw{12};
-    dieC = raw{13};
+    latC = raw{12};
+    lonC = raw{13};
+    offsetC = raw{14};
+    dieC = raw{15};
+    serialC = raw{16};
+    serialC = convertCharsToStrings(cell2mat(serialC(1)));
     
     offsetA = cell2mat(offsetA);
     offsetB = cell2mat(offsetB);
@@ -87,7 +110,8 @@ function [A, B, C, D, offsets] = extractFilteredDielectric(csvPath)
     offsetB = convertCharsToStrings(offsetB(1,:));
     offsetC = convertCharsToStrings(offsetC(1,:));
     
-    offsets = [offsetA(1),offsetB(1),offsetC(1)];
+    offsets = [offsetA(1);offsetB(1);offsetC(1)];
+    serials = [serialA; serialB; serialC];
     
     % Convert lat/lon to UTM.
     proj = projcrs(26915, 'Authority', 'EPSG');

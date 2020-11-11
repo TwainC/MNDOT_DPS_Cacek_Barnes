@@ -43,7 +43,7 @@
 %   University of Minnesota
 %
 % Version:
-%   11 November 2020
+%   9 November 2020
 %------------------------------------------------------------------------------
 
 function [meanVarRib, serials] = ribbonDielectric(csvPath,d,n,plotOption,serialOption)

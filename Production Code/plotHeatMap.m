@@ -68,7 +68,7 @@
 %   University of Minnesota
 %
 % Version:
-%   11 November 2020
+%   3 November 2020
 %==============================================================================
 function plotHeatMap(csvPath, varargin)
     
