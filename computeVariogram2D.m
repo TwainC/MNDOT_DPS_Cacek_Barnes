@@ -1,5 +1,5 @@
 %------------------------------------------------------------------------------
-% [H, G, N] = computeVariogram2D( X, Z )
+% [h, g, n] = computeVariogram2D( X, Z )
 %
 %   Compute the omni-directional semi-variogram for two-dimensional data.
 %
@@ -10,9 +10,9 @@
 %   nh      (scalar) number of subdivisions in the variogram plot.
 %
 % Returns
-%   H   (nh x 1) matrix of average separation distances.
-%   G   (nh x 1) matrix of average semi-variogram values.
-%   N   (nh x 1) matrix of pair counts in the bin.
+%   h       (nh x 1) matrix of average separation distances.
+%   g       (nh x 1) matrix of average semi-variogram values.
+%   n       (nh x 1) matrix of pair counts in the bin.
 %
 % Author
 %   Dr. Randal J. Barnes
@@ -20,9 +20,9 @@
 %   University of Minnesota
 %
 % Version
-%   14 October 2020
+%   19 October 2020
 %------------------------------------------------------------------------------
-function [H, G, N] = computeVariogram2D( X, Z, hmax, nh )
+function [h, g, n] = computeVariogram2D( X, Z, hmax, nh )
     % Validate.
     assert(size(X,2)==2, 'X must be an (nx2) matrix');
     assert(isvector(Z), 'Z must be a vector');
@@ -31,11 +31,11 @@ function [H, G, N] = computeVariogram2D( X, Z, hmax, nh )
     assert( isscalar(nh) & rem(nh,1)==0 & nh>0, 'nh must be a positive integer scalar');
     
     % Initialize.
-    H = zeros(nh, 1);
-    G = zeros(nh, 1);
-    N = zeros(nh, 1);    
+    h = zeros(nh, 1);
+    g = zeros(nh, 1);
+    n = zeros(nh, 1);    
     
-    deltah = hmax/nh;
+    width = hmax/nh;
     
     % We sort the data by x-coordinate so we can terminte the inner
     % pair-comparison loop (i.e. the j-loop below) as early as possible.
@@ -51,24 +51,24 @@ function [H, G, N] = computeVariogram2D( X, Z, hmax, nh )
             end
             
             deltay = X(j,2)-X(i,2);
-            h = hypot(deltax, deltay);
-            k = max(1, ceil(h/deltah));
+            deltah = hypot(deltax, deltay);
+            k = max(1, ceil(deltah/width));
             if k <= nh
-                H(k) = H(k) + h;
-                G(k) = G(k) + 0.5*(Z(j)-Z(i))^2;
-                N(k) = N(k) + 1;
+                h(k) = h(k) + deltah;
+                g(k) = g(k) + 0.5*(Z(j)-Z(i))^2;
+                n(k) = n(k) + 1;
             end
         end
     end
     
     % Compute the bin averages
     for k = 1:nh
-        if N(k) > 0
-            H(k) = H(k)/N(k);
-            G(k) = G(k)/N(k);
+        if n(k) > 0
+            h(k) = h(k)/n(k);
+            g(k) = g(k)/n(k);
         else
-            H(k) = NaN;
-            G(k) = NaN;
+            h(k) = NaN;
+            g(k) = NaN;
         end
     end
 end

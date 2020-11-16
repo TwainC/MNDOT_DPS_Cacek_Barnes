@@ -25,7 +25,7 @@ function view(h, g,n)
     ylim([0,V(4)]);
     xlabel('Separation Distance [ft]');
     ylabel('Semi-variogram');
-    title('Semi-variogram of all data between 5 and 6 ft from centerline');
+    title('Semi-
     
     for i=1:length(h)
         text(h(i),g(i),sprintf( '%d', n(i)));
