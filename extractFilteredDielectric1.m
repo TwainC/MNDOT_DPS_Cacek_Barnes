@@ -47,7 +47,7 @@
 % Version:
 %   21 October 2020
 %==============================================================================
-function [A, B, C, D, offsets] = extractFilteredDielectric(csvPath)
+function [A, B, C, D, offsets] = extractFilteredDielectric1(csvPath)
     
     % Extract the data for the three sensors.
     assert(isfile(csvPath), "Cannot find the file %s.\n", csvPath);
