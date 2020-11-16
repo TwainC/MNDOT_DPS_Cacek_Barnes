@@ -1,5 +1,5 @@
 %------------------------------------------------------------------------------
-% [varRib, meanRib, nPoints] = ribbonDielectric(csvPath,d,n,plotOption)
+% [varRib, meanRib, nPoints] = ribbonDielectric(csvPath,d,n,plotOption,serialOption)
 % 
 %   Finds the smallest bounding rectangle for the input data set, then 
 %   breaks the set into segments (ribbons) according to input parameters. 
@@ -34,8 +34,11 @@
 %
 % Returns:
 %   meanVarRib : (3 x n) matrix
-%       The sample variance, mean, and number of data points corresponding 
-%       to each ribbon segment.      
+%       -The sample variance, mean, and number of data points corresponding 
+%       to each ribbon segment.   
+%
+%   serials : (3 x 1) vector
+%       -Vector of serial numbers for sensor A,B,C
 %
 % Author:
 %   Twain Cacek
@@ -43,12 +46,14 @@
 %   University of Minnesota
 %
 % Version:
-%   11 November 2020
+%   15 November 2020
 %------------------------------------------------------------------------------
 
 function [meanVarRib, serials] = ribbonDielectric(csvPath,d,n,plotOption,serialOption)
     
     assert(plotOption >= 0 & plotOption <=2, "plotOption must be 0, 1, or 2");
+    
+    assert(serialOption == 0 | serialOption == 1, "serialOption must be 0 or 1");
     
     %Extract UTM from input data, form row vector, and find the bounding
     %rectangle
@@ -168,20 +173,7 @@ function [meanVarRib, serials] = ribbonDielectric(csvPath,d,n,plotOption,serialO
     %Boolean to find which offset is greater (i.e. further from centerline)
     AoverC = offsetDA > offsetDC;
     
-    %Rereates the ribbons vector to staisfy the condition that the
-    %centerline is closer to the sensor with the smaller offset.
-%     if AoverC & ~isempty(d)
-%         if abs(ribbons(end)-V(20)) > abs(ribbons(end)-V(2*length(A)+20))
-%             ribbons = (min(cornersR(2,:)):d:max(cornersR(2,:)));
-%             ribbons = flip(ribbons);
-%         end
-%     elseif ~AoverC & ~isempty(d)
-%         if abs(ribbons(end)-V(20)) < abs(ribbons(end)-V(2*length(A)+20))
-%             ribbons = (min(cornersR(2,:)):d:max(cornersR(2,:)));
-%             ribbons = flip(ribbons);
-%         end
-%     end
-    
+    %Sets the first element of the ribbons vector as the centerline
     if AoverC 
         if mean(V(1:length(A))) < mean(V(2*length(A)+1:end))
             ribbons = [(max(cornersR(2,:)):-d:min(cornersR(2,:))),min(cornersR(2,:))];
