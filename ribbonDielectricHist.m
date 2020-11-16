@@ -52,7 +52,7 @@ function ribReturn = ribbonDielectricHist(csvPath,d,n,plotOption,serialOption,ri
     
     %Extract UTM from input data, form row vector, and find the bounding
     %rectangle
-    [A,B,C,D,offsets,serials] = extractFilteredDielectric(csvPath);
+    [A,B,C,D,offsets,serials] = extractFilteredDielectric2(csvPath);
     serials = str2double(serials);
     A(:,4) = serials(1);
     B(:,4) = serials(2);
