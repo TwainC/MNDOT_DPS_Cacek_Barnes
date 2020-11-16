@@ -116,7 +116,7 @@ function [meanVarRib, serials] = ribbonDielectric(csvPath,d,n,plotOption,serialO
     U = U - midpointU;
     
     %Checks that the rectangle has length axis along U-axis
-    if (max(V) - min(V)) > 10
+    if (max(V) - min(V)) > 20
         theta = theta - pi/2;
         R = [cos(theta), -sin(theta); sin(theta), cos(theta)];
         Rinv = [cos(theta), sin(theta); -sin(theta), cos(theta)];
@@ -170,32 +170,45 @@ function [meanVarRib, serials] = ribbonDielectric(csvPath,d,n,plotOption,serialO
     
     %Rereates the ribbons vector to staisfy the condition that the
     %centerline is closer to the sensor with the smaller offset.
-    if AoverC | ~isempty(d)
-        if abs(ribbons(end)-V(1)) > abs(ribbons(end)-V(2*length(A)+1))
-            ribbons = (min(cornersR(2,:)):d:max(cornersR(2,:)));
-            ribbons = flip(ribbons);
+%     if AoverC & ~isempty(d)
+%         if abs(ribbons(end)-V(20)) > abs(ribbons(end)-V(2*length(A)+20))
+%             ribbons = (min(cornersR(2,:)):d:max(cornersR(2,:)));
+%             ribbons = flip(ribbons);
+%         end
+%     elseif ~AoverC & ~isempty(d)
+%         if abs(ribbons(end)-V(20)) < abs(ribbons(end)-V(2*length(A)+20))
+%             ribbons = (min(cornersR(2,:)):d:max(cornersR(2,:)));
+%             ribbons = flip(ribbons);
+%         end
+%     end
+    
+    if AoverC 
+        if mean(V(1:length(A))) < mean(V(2*length(A)+1:end))
+            ribbons = [(max(cornersR(2,:)):-d:min(cornersR(2,:))),min(cornersR(2,:))];
+        else
+            ribbons = [(min(cornersR(2,:)):d:max(cornersR(2,:))),max(cornersR(2,:))];
         end
     else
-        if abs(ribbons(end)-V(1)) < abs(ribbons(end)-V(2*length(A)+1))
-            ribbons = (min(cornersR(2,:)):d:max(cornersR(2,:)));
-            ribbons = flip(ribbons);
+        if mean(V(1:length(A))) < mean(V(2*length(A)+1:end))
+            ribbons = [(min(cornersR(2,:)):d:max(cornersR(2,:))),max(cornersR(2,:))];
+        else
+            ribbons = [(max(cornersR(2,:)):-d:min(cornersR(2,:))),min(cornersR(2,:))];
         end
     end
-    
+            
     %Initialize the ribbon marker row
     totUTM(5,:) = 0;
     
     for i=1:length(ribbons)-1
         %Create boolean array for data points within ribbon bounds
-        I = V >= ribbons(i+1) & V <= ribbons(i);
-
+        if ribbons(1) > ribbons(end)
+            I = V >= ribbons(i+1) & V <= ribbons(i);
+        else
+            I = V <= ribbons(i+1) & V >= ribbons(i);
+        end
         %Label each point with corresponding ribbon and store ribbon data
         totUTM(5,:) = totUTM(5,:) + I*i;
         ribbonData = totUTM(:,(I==1))';
-
-        ribbonDataA = ribbonData((ribbonData(:,4) == serials(1)),:);
-        ribbonDataB = ribbonData((ribbonData(:,4) == serials(2)),:);
-        ribbonDataC = ribbonData((ribbonData(:,4) == serials(3)),:);
         
         %Compute summary statistics
         varRib(i) = var(ribbonData(:,3));
@@ -203,17 +216,21 @@ function [meanVarRib, serials] = ribbonDielectric(csvPath,d,n,plotOption,serialO
         nPoints(i) = length(ribbonData);
         
         if serialOption == 1
-        varA(i) = var(ribbonDataA(:,3));
-        meanA(i) = mean(ribbonDataA(:,3));
-        nA(i) = length(ribbonDataA);
-        
-        varB(i) = var(ribbonDataB(:,3));
-        meanB(i) = mean(ribbonDataB(:,3));
-        nB(i) = length(ribbonDataB);
-        
-        varC(i) = var(ribbonDataC(:,3));
-        meanC(i) = mean(ribbonDataC(:,3));
-        nC(i) = length(ribbonDataC);
+            ribbonDataA = ribbonData((ribbonData(:,4) == serials(1)),:);
+            ribbonDataB = ribbonData((ribbonData(:,4) == serials(2)),:);
+            ribbonDataC = ribbonData((ribbonData(:,4) == serials(3)),:);
+            
+            varA(i) = var(ribbonDataA(:,3));
+            meanA(i) = mean(ribbonDataA(:,3));
+            nA(i) = length(ribbonDataA);
+            
+            varB(i) = var(ribbonDataB(:,3));
+            meanB(i) = mean(ribbonDataB(:,3));
+            nB(i) = length(ribbonDataB);
+            
+            varC(i) = var(ribbonDataC(:,3));
+            meanC(i) = mean(ribbonDataC(:,3));
+            nC(i) = length(ribbonDataC);
         end
         
         if plotOption ~= 0
