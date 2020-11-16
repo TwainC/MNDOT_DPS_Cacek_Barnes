@@ -16,7 +16,7 @@
     k = 1;
     comparisonSwerve = [];
 for i=1:length(swerveFilePaths727)
-    [totalTH002, serials] = ribbonDielectric(swerveFilePaths(i),1,[],0,1);
+    [totalTH002, serials] = ribbonDielectric(swerveFilePaths727(i),1,[],0,1);
     
 
     
@@ -106,7 +106,7 @@ for i=1:length(swerveFilePaths727)
     title("Variance v. Distance from centerline");
     xlabel("Ribbon boundary from centerline [ft]");
     ylabel("Sample Variance of < Ribbon boundary");
-   
+%    
 %     figure(f4);
 %     plot(distance(1,1:matLen), coeffVar, 'o'); hold on
 %     ylim([0 .06]);
@@ -116,7 +116,7 @@ for i=1:length(swerveFilePaths727)
 %     title("Coefficient of Variation v. Distance from centerline");
 %     xlabel("Ribbon boundary from centerline [ft]");
 %     ylabel("Sample Coefficient of Variation of < Ribbon boundary");
-    
+%     
     figure(f5);
     plot(distance(1:matLen), plotTH002(4,:),'o'); hold on
     plot(distance(1:matLen), plotTH002(7,:), 'x');
@@ -166,11 +166,11 @@ medianC = sprintf("Sensor # %.1d Median", serials(3));
 popMed = sprintf("Population Median");
 
 figure(f2);
-meanPlots(1) = plot(distance,meanMed,'pb', 'MarkerSize', 15, 'MarkerFaceColor', 'black');
+meanPlots(1) = plot(distance(1:length(meanMed)),meanMed,'pb', 'MarkerSize', 15, 'MarkerFaceColor', 'black');
 meanPlots(2) = plot(distance,AMeansMed,'pr', 'MarkerSize', 15, 'MarkerFaceColor', 'red');
 meanPlots(3) = plot(distance,BMeansMed,'pc', 'MarkerSize', 15, 'MarkerFaceColor', 'cyan');
 meanPlots(4) = plot(distance,CMeansMed,'pg', 'MarkerSize', 15, 'MarkerFaceColor', 'green');
-xline(totalTH002(1,1)); xline(totalTH002(1,2)); xline(totalTH002(1,3)); xline(totalTH002(1,4)); xline(totalTH002(1,5)); xline(totalTH002(1,6)); xline(totalTH002(1,7)); xline(totalTH002(1,8)); xline(totalTH002(1,9)); xline(totalTH002(1,10)); xline(totalTH002(1,11));
+xline(totalTH002(1,1)); xline(totalTH002(1,2)); xline(totalTH002(1,3)); xline(totalTH002(1,4)); xline(totalTH002(1,5)); xline(totalTH002(1,6)); xline(totalTH002(1,7)); xline(totalTH002(1,8)); xline(totalTH002(1,9)); xline(totalTH002(1,10));
 lgd = legend(meanPlots, popMed, medianA, medianB, medianC);
 
 figure(f3);
@@ -178,12 +178,12 @@ varPlots(1) = plot(distance,varsMed,'pb', 'MarkerSize', 15, 'MarkerFaceColor', '
 varPlots(2) = plot(distance,AVarsMed,'pr', 'MarkerSize', 15, 'MarkerFaceColor', 'red');
 varPlots(3) = plot(distance,BVarsMed,'pc', 'MarkerSize', 15, 'MarkerFaceColor', 'cyan');
 varPlots(4) = plot(distance,CVarsMed,'pg', 'MarkerSize', 15, 'MarkerFaceColor', 'green');
-xline(totalTH002(1,1)); xline(totalTH002(1,2)); xline(totalTH002(1,3)); xline(totalTH002(1,4)); xline(totalTH002(1,5)); xline(totalTH002(1,6)); xline(totalTH002(1,7)); xline(totalTH002(1,8)); xline(totalTH002(1,9)); xline(totalTH002(1,10)); xline(totalTH002(1,11));
+xline(totalTH002(1,1)); xline(totalTH002(1,2)); xline(totalTH002(1,3)); xline(totalTH002(1,4)); xline(totalTH002(1,5)); xline(totalTH002(1,6)); xline(totalTH002(1,7)); xline(totalTH002(1,8)); xline(totalTH002(1,9)); xline(totalTH002(1,10));
 lgd = legend(varPlots, popMed, medianA, medianB, medianC);
 
 % figure(f4);
 % coeffvarplot = plot(distance,coeffVarMed,'pb', 'MarkerSize', 15, 'MarkerFaceColor', 'black');
-% xline(totalTH002(1,1)); xline(totalTH002(1,2)); xline(totalTH002(1,3)); xline(totalTH002(1,4)); xline(totalTH002(1,5)); xline(totalTH002(1,6)); xline(totalTH002(1,7)); xline(totalTH002(1,8)); xline(totalTH002(1,9)); xline(totalTH002(1,10)); xline(totalTH002(1,11));
+% xline(totalTH002(1,1)); xline(totalTH002(1,2)); xline(totalTH002(1,3)); xline(totalTH002(1,4)); xline(totalTH002(1,5)); xline(totalTH002(1,6)); xline(totalTH002(1,7)); xline(totalTH002(1,8)); xline(totalTH002(1,9)); xline(totalTH002(1,10));
 % legend(medianA,medianB,medianC,coeffvarplot,'Population Median');
 
 figure(f5);
