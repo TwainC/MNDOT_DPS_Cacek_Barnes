@@ -29,7 +29,7 @@
 %   University of Minnesota
 %
 % Version:
-%   11 Nov 2020
+%   25 Nov 2020
 %------------------------------------------------------------------------------
 function catalogData(srcFolder, dstFile, recursive)
     tic;
@@ -195,26 +195,31 @@ function catalogData(srcFolder, dstFile, recursive)
         notes = 'N/A';
         
         %Check 3 conditions that indicate a swerve data set
-        intervalSwerve(n,1) = offsetA >= 20;
+        intervalSwerve(n,1) = offsetA >= 20 & offsetA < 40;
         intervalSwerve(n,2) = contains(fileList(n).name,'sw');
         intervalSwerve(n,3) = recWidth > 5;
+        intervalSwerve(n,4) = offsetA >= 40;
+        intervalSwerve(n,5) = offsetA < 20;
         
-        if sum(intervalSwerve(n,:)) == 3
+        if sum(intervalSwerve(n,1:3)) == 3
             collectionType(n) = "Swerve";
-            
-        elseif sum(intervalSwerve(n,:)) == 1 || sum(intervalSwerve(n,:)) == 2
-            collectionType(n) = "See Notes";
-            if intervalSwerve(n,3)
-                notes = 'Swerve by rectangle width. Other criteria do not agree. Check offset and file name';
-            else
-                notes = 'Not swerve by rectangle width. Other criteria do not agree. Check offset and file name';
-            end
-            
-        elseif abs(interval(n,2)-interval(n,3)) < 2
-            collectionType(n) = "Point";
-            
-        else
+        elseif recWidth >= 2.5 & recWidth <= 3.5 & intervalSwerve(n,4)
+            collectionType(n) = "Transverse";
+        elseif intervalSwerve(n,5) & recLength > 10 & ~intervalSwerve(n,3);
             collectionType(n) = "Longitudinal";
+        elseif intervalSwerve(n,5) & recWidth < 3;
+            collectionType(n) = "Point";
+        else
+            collectionType(n) = "See Notes";
+            if sum(intervalSwerve(n,1:3)) == 1 || sum(intervalSwerve(n,1:3)) == 2
+                if intervalSwerve(n,3)
+                    notes = "Swerve by rectangle width. Other criteria do not agree. Check offset and file name";
+                else
+                    notes = "Not swerve by rectangle width. Other criteria do not agree. Check offset and file name";
+                end
+            else
+                notes = "Data file collection type does not meet any criteria. Check file manually";
+            end
         end
         
         % Write the information out to the catalog.
@@ -237,23 +242,24 @@ function catalogData(srcFolder, dstFile, recursive)
     for i=1:n
         if collectionType(i) == "Swerve"
             plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], '-r', 'LineWidth', 3, 'DisplayName', 'Swerve')
-        else
-            if collectionType(i) == "Point"
-                plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], 'om','DisplayName', 'Point')
-            elseif collectionType(i) == "Longitudinal"
-                plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], '-b', 'LineWidth', 3, 'DisplayName', 'Longitudinal')
-            else
-                plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], '-g', 'LineWidth', 3, 'DisplayName', 'See Notes')
-            end
-        end    
+        elseif collectionType(i) == "Point"
+            plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], 'om', 'DisplayName', 'Point')
+        elseif collectionType(i) == "Longitudinal"
+            plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], '-b', 'LineWidth', 3, 'DisplayName', 'Longitudinal')
+        elseif collectionType(i) == "See Notes"
+            plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], '-g', 'LineWidth', 3, 'DisplayName', 'See Notes')
+        elseif collectionType(i) == "Transverse"
+            plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], 'ok', 'DisplayName', 'Transverse')
+        end
     end
-    
-    h = zeros(3, 1);
+
+    h = zeros(5, 1);
     h(1) = plot(NaN,NaN, '-r', 'LineWidth', 3);
     h(2) = plot(NaN,NaN,'om');
     h(3) = plot(NaN,NaN,'-b', 'LineWidth', 3);
-    h(4) = plot(NaN, NaN,'-g','LineWidth',3);
-    lgd = legend(h, 'Swerve','Point','Longitudinal', 'See Notes');
+    h(4) = plot(NaN,NaN,'-g','LineWidth',3);
+    h(5) = plot(NaN,NaN,'ok');
+    lgd = legend(h, 'Swerve','Point','Longitudinal', 'See Notes', 'Transverse');
     title(lgd, 'Collection Path Type');
     title('Data Collection Intervals');
     ylabel('Data Set Index [ ]')
