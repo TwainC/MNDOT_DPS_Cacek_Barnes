@@ -247,7 +247,7 @@ function catalogData(srcFolder, dstFile, recursive)
         elseif collectionType(i) == "Longitudinal"
             plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], '-b', 'LineWidth', 3, 'DisplayName', 'Longitudinal')
         elseif collectionType(i) == "See Notes"
-            plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], '-g', 'LineWidth', 3, 'DisplayName', 'See Notes')
+            plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], '-y', 'LineWidth', 3, 'DisplayName', 'See Notes')
         elseif collectionType(i) == "Transverse"
             plot([interval(i,2), interval(i,3)], [interval(i,1), interval(i,1)], 'ok', 'DisplayName', 'Transverse')
         end
@@ -257,7 +257,7 @@ function catalogData(srcFolder, dstFile, recursive)
     h(1) = plot(NaN,NaN, '-r', 'LineWidth', 3);
     h(2) = plot(NaN,NaN,'om');
     h(3) = plot(NaN,NaN,'-b', 'LineWidth', 3);
-    h(4) = plot(NaN,NaN,'-g','LineWidth',3);
+    h(4) = plot(NaN,NaN,'-y','LineWidth',3);
     h(5) = plot(NaN,NaN,'ok');
     lgd = legend(h, 'Swerve','Point','Longitudinal', 'See Notes', 'Transverse');
     title(lgd, 'Collection Path Type');

@@ -9,7 +9,7 @@ FEET_PER_METER = 100/(2.54*12);
 hmax = 15;
 nh = 150;
 
-[sensorA, sensorB, sensorC, D] = extractDielectric(strcat(folder, file));
+[sensorA, sensorB, sensorC, D] = extractDielectric(swerveFilePaths(1));%strcat(folder, file));
 
 %--------------------
 X = sensorA(:,1:2);

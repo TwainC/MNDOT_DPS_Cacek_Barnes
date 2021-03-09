@@ -72,16 +72,16 @@ function [means, sds] = extractAndPlotVariogram(csvPath)
     
     plot(hA, gA, 'o', 'MarkerFaceColor','r', 'MarkerEdgecolor','k');
     hold on
-    plot(hB, gB, 'o', 'MarkerFaceColor','g', 'MarkerEdgecolor','k');
+    plot(hB, gB, 'o', 'MarkerFaceColor','k', 'MarkerEdgecolor','k');
     plot(hC, gC, 'o', 'MarkerFaceColor','b', 'MarkerEdgecolor','k');
     
     varA = var(A(:,3));
     varB = var(B(:,3));
     varC = var(C(:,3));
     
-    plot([min(hA), max(hA)], [varA, varA], '-r');
-    plot([min(hB), max(hB)], [varB, varB], '-g');
-    plot([min(hC), max(hC)], [varC, varC], '-b');
+    plot([min(hA), max(hA)], [varA, varA], '-r','LineWidth',2);
+    plot([min(hB), max(hB)], [varB, varB], '-k','LineWidth',2);
+    plot([min(hC), max(hC)], [varC, varC], '-b','LineWidth',2);
     hold off
     
     fileName = convertStringsToChars(csvPath);
@@ -94,7 +94,7 @@ function [means, sds] = extractAndPlotVariogram(csvPath)
     ylabel('\gamma(h) [.]');
     title(fileName);
     
-    legend('A', 'B', 'C', 'Var A', 'Var B', 'Var C', 'Location', 'NorthWest');
+    %legend('A', 'B', 'C', 'Var A', 'Var B', 'Var C', 'Location', 'NorthWest');
     
     means = [fileName, round(mean(A(:,3)),2), round(mean(B(:,3)),2), round(mean(C(:,3)),2), length(A(:,1))];
     sds = [fileName, round(std(A(:,3)),2), round(std(B(:,3)),2), round(std(C(:,3)),2), length(A(:,1))];

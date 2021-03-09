@@ -53,13 +53,30 @@ for i=1:length(dataString728)
     count = i+1;
 end
 
+lgd = legend('A','B','C','Variance A', 'Variance B', 'Variance C');
+lgd.Layout.Tile = 15;
+% ax = nexttile;
+% h(1) = plot(NaN, NaN, 'o', 'MarkerFaceColor','r', 'MarkerEdgecolor','k');
+% h(2) = plot(NaN, NaN, 'o', 'MarkerFaceColor','k', 'MarkerEdgecolor','k');
+% h(3) = plot(NaN, NaN, 'o', 'MarkerFaceColor','b', 'MarkerEdgecolor','k');
+% h(4) = plot(NaN, NaN, '-r');
+% h(5) = plot(NaN, NaN, '-k');
+% h(6) = plot(NaN, NaN, '-b');    
+% 
+% leg = legend(h,'A','B','C','Var A','Var B','Var C');
+% % leg.Location = 'none';
+% % leg.Interpreter = 'latex';
+% % leg.FontSize = 16;
+% % ax.Visible = false;
+
 figure(2);
 tiledlayout(3,5);
 for j=1:length(dataString727)
     nexttile
     [mean(j+count,:), sd(j+count,:)] = extractAndPlotVariogram(dataString727(j));
 end
-
+lgd = legend('A','B','C','Variance A', 'Variance B', 'Variance C');
+lgd.Layout.Tile = 15;
 toc
 %% Summary Statistics
 disp(mean)
