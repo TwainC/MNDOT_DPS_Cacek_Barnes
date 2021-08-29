@@ -84,7 +84,7 @@ function [meanVarRib, serials] = ribbonDielectric(csvPath,d,n,plotOption,serialO
         for j = 1:4
             text(corners(1,j), corners(2,j), sprintf('%d', j), 'FontSize', 18);
         end
-        axis equal;
+        %axis equal;
         plot(x, y, '.b');
         
     elseif plotOption == 2
@@ -98,7 +98,7 @@ function [meanVarRib, serials] = ribbonDielectric(csvPath,d,n,plotOption,serialO
         for j = 1:4
             text(corners(1,j), corners(2,j), sprintf('%d', j), 'FontSize', 18);
         end
-        axis equal;
+        %axis equal;
         
         
     end
@@ -252,7 +252,7 @@ function [meanVarRib, serials] = ribbonDielectric(csvPath,d,n,plotOption,serialO
     end
     
 %Change ribbon distances in refference to the centerline and construct
-%outpu matrix
+%output matrix
 ribbons = abs(ribbons(1,:)-ribbons(1));
 
 %Return sensor statistics if specified

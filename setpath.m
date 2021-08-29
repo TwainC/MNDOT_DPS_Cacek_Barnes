@@ -9,7 +9,7 @@
 % Version:
 %   11 November 2020
 %==============================================================================
-projectFolders = {'.', 'variogram model', 'Production Code'};
+projectFolders = {'.', 'variogram model', 'Production Code','m2tex'};
 
 for i = 1:length( projectFolders )
     W = what( projectFolders{i} );
